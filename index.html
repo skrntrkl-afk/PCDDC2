@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Drug Dose Card">
+<meta name="theme-color" content="#1a3a6b">
+<title>💊 Drug Dose Card — ACLS 2025 · PALS 2025</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   ROOT VARIABLES
+═══════════════════════════════════════════════════════════════ */
+:root {
+  --navy:#1a3a6b; --navy-lt:#e8f0fe;
+  --red:#c0392b;  --red-lt:#fde8e8;
+  --orange:#d97706; --orange-lt:#fff3e0;
+  --green:#057a55;  --green-lt:#e8f5f0;
+  --teal:#0694a2;   --teal-lt:#e0f7fa;
+  --purple:#6c2bd9; --purple-lt:#ede9fe;
+  --amber:#b45309;  --amber-lt:#fffbeb;
+  --peds-bg:#fdf4ff; --peds-bd:#e9d5ff; --peds-tx:#6b21a8;
+  --gray:#374151; --gray-lt:#f3f4f6;
+  --text:#111827; --text2:#374151; --text3:#6b7280; --text4:#9ca3af;
+  --bg:#f0f4f8; --surface:#fff; --border:#d0dae8; --border2:#c2cfdf;
+  --mono:'Courier New',monospace;
+  --sans:'Sarabun','TH Sarabun New',Arial,sans-serif;
+  --r:10px; --sh:0 2px 8px rgba(0,0,0,.07);
+  --nav-h:58px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{overflow-x:hidden;scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);
+  min-height:100vh;padding-bottom:calc(var(--nav-h) + 8px);font-size:14px;
+  background-image:
+    radial-gradient(ellipse 70% 40% at 20% 8%,rgba(99,179,237,.12) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 85%,rgba(154,230,180,.10) 0%,transparent 60%);}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+::-webkit-scrollbar{height:4px;width:4px}
+::-webkit-scrollbar-thumb{background:#c2cfdf;border-radius:2px}
+
+/* ── ANIMATIONS ── */
+@keyframes flashAnim{
+  0%{background:#fff176;transform:scale(1.12)}
+  70%{background:#fff9c4;transform:scale(1.03)}
+  100%{background:transparent;transform:scale(1)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes fadeIn{from{opacity:.3;transform:translateY(4px)}to{opacity:1;transform:none}}
+.flash{animation:flashAnim .45s ease-out}
+.page{display:none}.page.active{display:block;animation:fadeIn .18s ease-out}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);
+  background:var(--surface);border-top:1.5px solid var(--border);
+  display:flex;z-index:200;box-shadow:0 -2px 12px rgba(0,0,0,.08)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;border:none;background:none;font-size:10px;color:var(--text3);padding:6px 2px;transition:all .15s}
+.nb .ico{font-size:20px;line-height:1}
+.nb.active{color:var(--navy);background:var(--navy-lt)}
+.nb.active .ico{transform:scale(1.1)}
+
+/* ── PAGE PADDING ── */
+.pg{padding:14px 13px 20px}
+
+/* ── HEADER ── */
+.app-hdr{text-align:center;margin-bottom:14px}
+.hbadge{display:inline-flex;align-items:center;gap:6px;background:var(--red-lt);
+  border:1.5px solid #f8b4b4;border-radius:20px;padding:3px 12px;
+  font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:2px;
+  color:var(--red);text-transform:uppercase;margin-bottom:8px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1.4s infinite;display:inline-block}
+.vtag{display:inline-block;background:var(--navy-lt);color:var(--navy);
+  border:1px solid #b3c6f5;border-radius:6px;padding:2px 10px;
+  font-size:10px;font-weight:700;font-family:var(--mono);margin-top:5px}
+
+/* ── WEIGHT PANEL ── */
+.wt-panel{background:var(--surface);border:2px solid #1a56db;border-radius:var(--r);
+  padding:13px 15px;margin-bottom:16px;box-shadow:var(--sh)}
+.wt-label{font-size:12px;font-weight:800;color:#1a56db;text-transform:uppercase;letter-spacing:1px}
+.wt-wrap{display:flex;align-items:center;gap:4px;background:var(--navy-lt);
+  border:2px solid #1a56db;border-radius:8px;padding:4px 12px}
+.wt-wrap input{background:none;border:none;outline:none;color:#1a56db;
+  font-family:var(--mono);font-size:36px;font-weight:700;width:76px;text-align:right}
+.wt-wrap input::-webkit-inner-spin-button,.wt-wrap input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.wt-unit{font-family:var(--mono);font-size:15px;font-weight:700;color:#1a56db;opacity:.7}
+.wt-slider{width:100%;margin:4px 0;accent-color:#1a56db;cursor:pointer;height:4px}
+.slider-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--text4);font-family:var(--mono);margin-bottom:8px}
+.presets{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.pb{background:var(--gray-lt);border:1.5px solid var(--border2);border-radius:6px;
+  padding:5px 10px;font-family:var(--mono);font-size:12px;font-weight:700;
+  color:var(--text2);transition:all .12s}
+.pb:hover,.pb.active{background:#1a56db;border-color:#1a56db;color:#fff}
+.legend{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:5px;font-size:10px}
+
+/* ── SECTION TITLE ── */
+.sec{display:flex;align-items:center;gap:8px;margin:20px 0 10px;
+  font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3)}
+.sec::after{content:'';flex:1;height:1px;background:var(--border2)}
+.si{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;
+  justify-content:center;font-size:14px;flex-shrink:0}
+
+/* ── DRUG GRID ── */
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(305px,1fr));gap:10px}
+
+/* ── DRUG CARD ── */
+.dc{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--sh)}
+.ch{padding:11px 14px;display:flex;align-items:flex-start;justify-content:space-between;
+  gap:8px;border-bottom:1px solid var(--border)}
+.dn{font-size:15px;font-weight:800;color:var(--text);line-height:1.2}
+.dc2{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px}
+.cb{padding:10px 14px}
+
+/* ── TAGS ── */
+.ctag{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:1px;
+  padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.upd{display:inline-block;background:#fef9c3;color:#854d0e;border:1px solid #fde68a;
+  border-radius:4px;font-size:8px;font-weight:700;font-family:var(--mono);
+  padding:1px 5px;margin-left:4px;vertical-align:middle}
+.pb25{display:inline-block;background:var(--peds-bg);color:var(--peds-tx);
+  border:1px solid var(--peds-bd);border-radius:4px;font-size:8px;font-weight:700;
+  font-family:var(--mono);padding:1px 6px;margin-left:4px;vertical-align:middle}
+
+/* ── DOSE ROWS ── */
+.dr{display:flex;align-items:center;justify-content:space-between;
+  padding:7px 0;border-bottom:1px solid #f0f4f8;gap:8px}
+.dr:last-of-type{border-bottom:none}
+.dl{font-size:12.5px;font-weight:600;color:var(--text2);flex:1;min-width:0;line-height:1.3}
+.dl .s{display:block;font-size:10px;font-weight:400;color:var(--text3);margin-top:1px}
+
+/* ── PEDS ROW (purple tinted) ── */
+.dr-p{display:flex;align-items:center;justify-content:space-between;
+  padding:7px 10px;border-bottom:1px solid var(--peds-bd);gap:8px;
+  background:var(--peds-bg);border-left:3px solid var(--peds-tx);
+  border-radius:6px;margin:3px -4px}
+.dr-p:last-of-type{border-bottom:none}
+.dl-p{font-size:12.5px;font-weight:600;color:var(--peds-tx);flex:1;min-width:0;line-height:1.3}
+.dl-p .s{display:block;font-size:10px;font-weight:400;color:#9333ea;margin-top:1px}
+
+/* ── PEDS DIVIDER ── */
+.pd{display:flex;align-items:center;gap:8px;margin:8px 0 5px;
+  font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--peds-tx)}
+.pd::after{content:'';flex:1;height:1px;background:var(--peds-bd)}
+
+/* ── VALUE DISPLAYS ── */
+.dv{font-family:var(--mono);font-size:26px;font-weight:900;text-align:right;
+  white-space:nowrap;display:inline-block;padding:3px 6px;border-radius:6px;
+  letter-spacing:-0.5px;line-height:1.1}
+.dv .du{font-size:12px;font-weight:700;opacity:.85;margin-left:3px}
+.sdv{font-family:var(--mono);font-size:24px;font-weight:900;color:#1a1a2e;
+  white-space:nowrap;padding:3px 6px;letter-spacing:-0.5px;line-height:1.1}
+.sdv .du{font-size:12px;font-weight:700;opacity:.8;margin-left:3px}
+
+/* ── NOTES ── */
+.note{margin-top:7px;background:var(--orange-lt);border-left:3px solid var(--orange);
+  padding:6px 10px;border-radius:0 6px 6px 0;font-size:11px;color:#92400e;line-height:1.65}
+.note.nb{background:var(--navy-lt);border-left-color:var(--navy);color:#1e40af}
+.note.nr{background:var(--red-lt);border-left-color:var(--red);color:#991b1b}
+.note.ng{background:var(--green-lt);border-left-color:var(--green);color:#065f46}
+.note.np{background:var(--peds-bg);border-left-color:var(--peds-tx);color:var(--peds-tx)}
+.max-b{display:inline-flex;align-items:center;gap:3px;background:var(--red-lt);
+  border:1px solid #f8b4b4;border-radius:5px;font-size:11px;font-weight:700;
+  color:var(--red);padding:2px 8px;margin-top:5px}
+
+/* ── MIX BOX ── */
+.mb-btn{display:flex;align-items:center;gap:6px;width:100%;
+  border:1.5px solid var(--teal);border-radius:6px;padding:6px 10px;
+  background:#f0fafb;font-size:12px;font-weight:700;color:var(--teal);transition:background .15s}
+.mb-btn.open{border-radius:6px 6px 0 0;background:var(--teal-lt)}
+.mb-body{background:var(--teal-lt);border:1.5px solid var(--teal);border-top:none;
+  border-radius:0 0 6px 6px;padding:10px 12px;display:none}
+.mb-body.open{display:block}
+.mb-step{display:flex;gap:9px;margin-bottom:10px}
+.mb-step:last-child{margin-bottom:0}
+.mb-num{width:22px;height:22px;border-radius:50%;background:var(--teal);color:#fff;
+  font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.mb-tag{display:inline-block;background:var(--teal);color:#fff;border-radius:4px;
+  font-size:9px;font-weight:700;font-family:var(--mono);padding:1px 7px;margin-bottom:4px}
+.mb-txt{font-size:12px;color:var(--text2);line-height:1.65}
+.mb-row{display:flex;justify-content:space-between;align-items:baseline;
+  background:#fff;border-radius:5px;padding:4px 9px;margin-top:4px;border:1px solid var(--border)}
+.mb-row span:first-child{font-size:11px;color:var(--text3)}
+.mb-row span:last-child{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--teal);margin-left:8px}
+.mb-warn{margin-top:5px;background:#fff3e0;border-left:2px solid var(--orange);
+  padding:3px 8px;border-radius:0 4px 4px 0;font-size:11px;color:#92400e}
+
+/* ── INFUSION TABLE ── */
+.it{width:100%;border-collapse:collapse;margin-top:5px;font-size:12px}
+.it th{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  color:var(--text3);padding:4px 6px;border-bottom:2px solid var(--border2);text-align:left}
+.it td{padding:6px 5px;border-bottom:1px solid #f0f4f8;font-size:12px}
+.it td.iv{font-family:var(--mono);font-size:22px;font-weight:900;color:var(--purple);text-align:right;letter-spacing:-0.5px}
+.it tr:last-child td{border-bottom:none}
+.infomix{font-size:11px;color:var(--text3);margin-bottom:7px;padding:5px 8px;
+  background:var(--purple-lt);border-radius:6px}
+.infomix strong{color:var(--purple)}
+
+/* ── IV COMPAT ── */
+.ct table{border-collapse:collapse;font-size:11px;font-family:var(--mono);min-width:680px;width:100%}
+.ct th{padding:5px 7px;background:var(--teal-lt);color:var(--teal);font-size:9px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;border:1px solid #b2ebf2;text-align:center;white-space:nowrap}
+.ct th:first-child{text-align:left;min-width:120px}
+.ct td{padding:4px 7px;border:1px solid var(--border);text-align:center;font-size:10px;font-weight:600}
+.ct td:first-child{text-align:left;font-family:var(--sans);font-size:11px;font-weight:700;background:var(--gray-lt)}
+.cc-y{background:#d1fae5;color:#065f46}.cc-n{background:#fee2e2;color:#991b1b}
+.cc-c{background:#fef9c3;color:#854d0e}.cc-u{background:#f3f4f6;color:#9ca3af}
+
+/* ── ACETAR SECTION ── */
+.actar-card{background:var(--amber-lt);border:1.5px solid #fde68a;border-radius:8px;padding:10px 12px}
+.actar-item{font-size:11px;color:var(--text2);padding:3px 0;border-bottom:1px solid #fef3c7;line-height:1.5}
+.actar-item:last-child{border-bottom:none}
+.aw{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:4px}
+.aw-tag{background:#fff;border:1.5px solid var(--orange);color:var(--orange);
+  border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:9px;font-weight:700;
+  white-space:nowrap;flex-shrink:0;margin-top:1px}
+
+/* ── QR PAGE ── */
+.qr-pg{padding:20px 16px}
+.qr-card{background:var(--surface);border:2px solid var(--navy);border-radius:var(--r);
+  padding:20px;box-shadow:var(--sh);margin-bottom:16px}
+.qr-canvas-wrap{display:flex;justify-content:center;margin:16px 0}
+#qr-canvas{border:3px solid var(--navy);border-radius:10px;image-rendering:pixelated;
+  max-width:100%;height:auto}
+.qr-url-input{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:8px;
+  font-family:var(--mono);font-size:12px;color:var(--text);outline:none;transition:border-color .15s}
+.qr-url-input:focus{border-color:#1a56db}
+.qr-gen-btn{width:100%;padding:12px;background:#1a56db;color:#fff;border:none;
+  border-radius:8px;font-size:14px;font-weight:800;margin-top:10px;letter-spacing:.5px}
+.qr-gen-btn:active{background:#1e40af}
+.qr-dl-btn{width:100%;padding:10px;background:var(--green);color:#fff;border:none;
+  border-radius:8px;font-size:13px;font-weight:700;margin-top:8px}
+.qr-info{font-size:11.5px;color:var(--text3);line-height:1.7;margin-top:12px}
+.qr-steps{background:var(--navy-lt);border:1px solid #b3c6f5;border-radius:8px;
+  padding:14px 16px;margin-top:12px}
+.qr-step{display:flex;gap:10px;margin-bottom:8px;font-size:12px;color:#1e40af}
+.qr-step:last-child{margin-bottom:0}
+.qr-step-n{width:20px;height:20px;background:var(--navy);color:#fff;border-radius:50%;
+  font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.card-section{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:14px;margin-bottom:12px;box-shadow:var(--sh)}
+
+/* ── INFO PAGE ── */
+.info-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:13px 15px;margin-bottom:10px;box-shadow:var(--sh)}
+.info-item{font-size:12px;color:var(--text2);padding:3px 0;border-bottom:1px solid var(--border);line-height:1.6}
+.info-item:last-child{border-bottom:none}
+
+/* ── FOOTER NOTE ── */
+.ft-note{text-align:center;font-size:10px;color:var(--text4);line-height:1.8;padding:12px 10px 0;margin-top:8px}
+
+@media(max-width:480px){
+  .wt-wrap input{font-size:30px;width:68px}
+  .dv{font-size:18px}
+  .dg{grid-template-columns:1fr}
+}
+
+/* ── DRUG SELECTOR (v3.3 addition — non-disruptive) ── */
+.drug-sel-panel{background:var(--surface);border:2px solid var(--purple);border-radius:var(--r);
+  padding:13px 15px;margin-bottom:12px;box-shadow:var(--sh)}
+.drug-sel-label{font-size:12px;font-weight:800;color:var(--purple);text-transform:uppercase;
+  letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.drug-sel-wrap{position:relative}
+.drug-sel{width:100%;padding:12px 40px 12px 14px;border:2px solid var(--purple);
+  border-radius:8px;background:var(--purple-lt);color:var(--text);font-family:var(--sans);
+  font-size:15px;font-weight:700;appearance:none;-webkit-appearance:none;cursor:pointer;outline:none}
+.drug-sel-wrap::after{content:'▼';position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  color:var(--purple);font-size:11px;pointer-events:none}
+.drug-sel-hint{font-size:10.5px;color:var(--text3);margin-top:6px;line-height:1.6}
+.drug-sel-hint strong{color:var(--purple)}
+.filter-active-tag{display:inline-flex;align-items:center;gap:6px;background:var(--purple);
+  color:#fff;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;margin-top:8px}
+.filter-clear-btn{background:rgba(255,255,255,.25);border:none;color:#fff;border-radius:50%;
+  width:18px;height:18px;font-size:11px;font-weight:800;cursor:pointer;display:flex;
+  align-items:center;justify-content:center;line-height:1}
+
+</style>
+
+<!-- ═══════════════════════════════════════════════
+     GOOGLE ANALYTICS 4 — Drug Dose Card Tracking
+     แทนที่ G-XXXXXXXXXX ด้วย Measurement ID ของคุณ
+     รับได้จาก: analytics.google.com → Admin → Data Streams
+═══════════════════════════════════════════════ -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // ── กำหนด Measurement ID ของคุณที่นี่ ──
+  var GA_ID = 'G-XXXXXXXXXX';
+  gtag('config', GA_ID, {
+    page_title: 'ER Drug Dose Card v3.2',
+    page_location: window.location.href,
+    // Custom dimensions
+    custom_map: {
+      dimension1: 'app_version',
+      dimension2: 'guideline'
+    }
+  });
+
+  // ── Send initial page view with app info ──
+  gtag('event', 'app_open', {
+    app_version: 'v3.2',
+    guideline: 'ACLS2025_PALS2025',
+    department: 'Emergency_Department'
+  });
+
+  // ── Track weight changes (anonymous — no patient data) ──
+  var _lastW = 70;
+  function trackWeightChange(w) {
+    // Bucket weights, never send actual patient weight
+    var bucket = w < 10 ? 'neonate' : w < 20 ? 'infant' : w < 40 ? 'child' : w < 60 ? 'adult_light' : w < 90 ? 'adult_normal' : 'adult_heavy';
+    if (bucket !== _lastW) {
+      gtag('event', 'weight_category_used', {
+        weight_category: bucket,
+        app_version: 'v3.2'
+      });
+      _lastW = bucket;
+    }
+  }
+
+  // ── Track tab navigation ──
+  function trackPage(pageName) {
+    gtag('event', 'page_view', {
+      page_title: pageName,
+      page_location: window.location.href + '#' + pageName
+    });
+    gtag('event', 'tab_viewed', {
+      tab_name: pageName,
+      app_version: 'v3.2'
+    });
+  }
+
+  // ── Track mix box opens (which drugs are consulted most) ──
+  function trackMixOpen(drugName) {
+    gtag('event', 'mix_box_opened', {
+      drug_name: drugName,
+      app_version: 'v3.2'
+    });
+  }
+
+  // ── Track QR generation ──
+  function trackQRGen() {
+    gtag('event', 'qr_generated', {
+      app_version: 'v3.2'
+    });
+  }
+</script>
+
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 1 — DRUG DOSES
+═══════════════════════════════════════════════════════════════ -->
+<div id="pg-drugs" class="page active pg">
+
+  <!-- Header -->
+  <div class="app-hdr">
+    <div class="hbadge"><span class="dot"></span> Emergency Protocol</div>
+    <div style="font-size:20px;font-weight:800">Pre-Calculated Drug Dose Card</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:3px">
+      กรอกน้ำหนัก → คำนวณอัตโนมัติ · 👶 แถวม่วง = Peds · 🧪 วิธีผสมยา
+    </div>
+    <span class="vtag">✦ ACLS 2025 · PALS 2025 · v3.2</span>
+  </div>
+
+
+  <!-- Weight Panel -->
+  <div class="wt-panel">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+      <span class="wt-label">⚖ น้ำหนักผู้ป่วย</span>
+      <div class="wt-wrap">
+        <input type="number" id="wt" value="70" min="1" max="250" oninput="syncSlider();updateAll()">
+        <span class="wt-unit">kg</span>
+      </div>
+    </div>
+    <input type="range" id="wt-sl" class="wt-slider" min="1" max="150" value="70" oninput="syncInput();updateAll()">
+    <div class="slider-labels"><span>1</span><span>50</span><span>100</span><span>150 kg</span></div>
+    <div class="presets">
+      <span style="font-size:10px;color:var(--text3);font-weight:700">Quick:</span>
+      <button class="pb" onclick="setW(3)">3</button>
+      <button class="pb" onclick="setW(5)">5</button>
+      <button class="pb" onclick="setW(10)">10</button>
+      <button class="pb" onclick="setW(20)">20</button>
+      <button class="pb" onclick="setW(30)">30</button>
+      <button class="pb" onclick="setW(50)">50</button>
+      <button class="pb active" onclick="setW(70)">70</button>
+      <button class="pb" onclick="setW(80)">80</button>
+      <button class="pb" onclick="setW(100)">100</button>
+    </div>
+    <div class="legend">
+      <div class="leg"><div style="width:14px;height:14px;border-radius:3px;background:#fff;border:1px solid var(--border)"></div><span style="color:var(--text3)">แถวขาว = Adult</span></div>
+      <div class="leg"><div style="width:14px;height:14px;border-radius:3px;background:var(--peds-bg);border-left:3px solid var(--peds-tx)"></div><span style="color:var(--peds-tx)">👶 แถวม่วง = Peds (PALS 2025)</span></div>
+    </div>
+  </div>
+
+  <!-- Drug Selector Panel (v3.3 addition — non-disruptive, default = all) -->
+  <div class="drug-sel-panel">
+    <div class="drug-sel-label">💊 เลือกยาที่ต้องการ (ไม่บังคับ)</div>
+    <div class="drug-sel-wrap">
+      <select id="drug-sel" class="drug-sel" onchange="filterDrug(this.value)">
+        <option value="all">📋 แสดงยาทั้งหมด 12 ชนิด (ค่าเริ่มต้น)</option>
+        <option value="adrenaline">💉 1. Adrenaline (Epinephrine)</option>
+        <option value="adenosine">💉 2. Adenosine</option>
+        <option value="amiodarone">💉 3. Amiodarone</option>
+        <option value="atropine">💉 4. Atropine</option>
+        <option value="lidocaine">💉 5. Lidocaine 2%</option>
+        <option value="ca-gluconate">⚗️ 6. Calcium Gluconate 10%</option>
+        <option value="mgso4">⚗️ 7. Magnesium Sulfate 50%</option>
+        <option value="nahco3">⚗️ 8. Sodium Bicarbonate 7.5%</option>
+        <option value="glucose">⚗️ 9. Glucose 50%</option>
+        <option value="dopamine">💜 10. Dopamine</option>
+        <option value="norepinephrine">💜 11. Norepinephrine</option>
+        <option value="diazepam">🧠 12. Diazepam</option>
+      </select>
+    </div>
+    <div class="drug-sel-hint">
+      เลือก <strong>"แสดงยาทั้งหมด"</strong> เพื่อดูทุกยา (ค่าเริ่มต้น) หรือเลือกยาเฉพาะเพื่อดูเฉพาะยาตัวนั้นแบบเต็มจอ
+    </div>
+    <div id="filter-tag-wrap" style="display:none">
+      <span class="filter-active-tag">
+        <span id="filter-tag-text">กำลังแสดงเฉพาะ: —</span>
+        <button class="filter-clear-btn" onclick="filterDrug('all');document.getElementById('drug-sel').value='all'" title="ล้างตัวกรอง">✕</button>
+      </span>
+    </div>
+  </div>
+
+  <!-- ── CARDIAC ARREST ── -->
+  <div class="sec"><span class="si" style="background:#fde8e8">🫀</span>Cardiac Arrest · Resuscitation</div>
+  <div class="dg">
+
+    <!-- ADRENALINE -->
+    <div class="dc" data-drug="adrenaline">
+      <div class="ch"><div><div class="dn">Adrenaline (Epinephrine)</div><div class="dc2">1 mg/ml · amp 1 ml</div></div><span class="ctag" style="background:#fde8e8;color:var(--red);border:1px solid #f8b4b4">RESUS</span></div>
+      <div class="cb">
+        <div class="dr"><div class="dl">Cardiac Arrest IV/IO<span class="s">1 mg → dilute ใน NSS 9 ml = 10 ml (0.1 mg/ml) · ฉีด IV push</span></div><span class="sdv" style="color:var(--red)">1 mg<span class="du">= 10 ml diluted</span></span></div>
+        <div class="dr"><div class="dl">Anaphylaxis IM<span class="s">0.3–0.5 mg IM anterolateral thigh · ไม่เจือจาง</span></div><span class="sdv">0.3–0.5<span class="du">mg IM</span></span></div>
+        <div class="dr"><div class="dl">Infusion (Vasopressor)<span class="s">1 mg ใน NSS/D5W 100 ml = 10 µg/ml · IV drip</span></div><span class="sdv" style="color:var(--navy)">10 µg/ml</span></div>
+        <div class="pd"><span>👶</span> Pediatric Doses</div>
+        <div class="dr-p"><div class="dl-p">IV/IO Cardiac Arrest<span class="s">0.01 mg/kg → dilute ใน NSS → 0.1 mg/ml · max 1 mg</span></div><span class="dv" id="epi-peds" style="color:var(--peds-tx)"></span></div>
+        <div class="dr-p"><div class="dl-p">IM Anaphylaxis<span class="s">0.01 mg/kg IM · max 0.5 mg · ไม่เจือจาง</span></div><span class="dv" id="epi-im" style="color:var(--peds-tx)"></span></div>
+        <div class="note nr">ACLS 2025: q3–5 min ไม่จำกัดครั้ง · <strong>ต้อง dilute ก่อน IV เสมอ</strong> — 1 mg + NSS 9 ml = 10 ml (0.1 mg/ml)</div>
+        <div style="margin-top:8px"><button class="mb-btn" onclick="togMix(this)"><span>🧪</span><span style="flex:1;text-align:left">วิธีผสมยา / การเตรียม</span><span>▼ ดู</span></button>
+        <div class="mb-body">
+          <div class="mb-step"><div class="mb-num">1</div><div><span class="mb-tag">Cardiac Arrest IV — ต้อง Dilute</span><div class="mb-txt" style="font-weight:700">Adrenaline 1 mg (1 ml) + NSS 9 ml = 10 ml รวม → 0.1 mg/ml · ฉีด IV push ช้าๆ ตาม flush NSS 20 ml</div><div class="mb-row"><span>ยา:</span><span>1 ml (1 mg)</span></div><div class="mb-row"><span>+ NSS:</span><span>9 ml</span></div><div class="mb-row"><span>รวม / Conc:</span><span>10 ml · 0.1 mg/ml</span></div><div class="mb-warn">⚠ ห้ามฉีด undiluted IV → arrhythmia, ischemia</div></div></div>
+          <div class="mb-step"><div class="mb-num">2</div><div><span class="mb-tag">Anaphylaxis IM — ไม่เจือจาง</span><div class="mb-txt">ดึง 0.3–0.5 ml จาก amp เข้า syringe 1 ml ฉีด IM anterolateral thigh ไม่เจือจาง</div></div></div>
+          <div class="mb-step"><div class="mb-num">3</div><div><span class="mb-tag">Peds IV — dilute เช่นกัน</span><div class="mb-txt">คำนวณ mg ตามน้ำหนัก → dilute ใน NSS ให้ได้ 0.1 mg/ml เสมอ</div><div id="mb-epi-peds-rows"></div><div class="mb-warn">⚠ ปริมาตรน้อย → ใช้ syringe 1 ml และ dilute ให้แม่นยำ</div></div></div>
+          <div class="mb-step"><div class="mb-num">4</div><div><span class="mb-tag">Infusion Drip</span><div class="mb-txt">Adrenaline 1 mg (1 ml) + NSS/D5W 99 ml = 100 ml → 10 µg/ml</div><div class="mb-row"><span>2 µg/min:</span><span>12 ml/hr</span></div><div class="mb-row"><span>5 µg/min:</span><span>30 ml/hr</span></div><div class="mb-row"><span>10 µg/min:</span><span>60 ml/hr</span></div><div class="mb-warn">⚠ ห้ามใช้ LR/Acetar · central line ถ้าเป็นไปได้</div></div></div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- ADENOSINE -->
+    <div class="dc" data-drug="adenosine">
+      <div class="ch"><div><div class="dn">Adenosine</div><div class="dc2">3 mg/ml · amp 2 ml (6 mg)</div></div><span class="ctag" style="background:var(--orange-lt);color:var(--orange);border:1px solid #fcd19f">CARDIAC</span></div>
+      <div class="cb">
+        <div class="dr"><div class="dl">SVT 1st dose<span class="s">6 mg rapid IV + flush 20 ml NS ทันที</span></div><span class="sdv" style="color:var(--orange)">6 mg<span class="du">= 2 ml</span></span></div>
+        <div class="dr"><div class="dl">SVT 2nd dose<span class="s">12 mg ถ้าไม่ตอบสนองใน 1–2 min</span></div><span class="sdv" style="color:var(--orange)">12 mg<span class="du">= 4 ml</span></span></div>
+        <div class="pd"><span>👶</span> Pediatric Doses</div>
+        <div class="dr-p"><div class="dl-p">1st dose<span class="s">0.1 mg/kg IV rapid · max 6 mg</span></div><span class="dv" id="aden-p1" style="color:var(--peds-tx)"></span></div>
+        <div class="dr-p"><div class="dl-p">2nd dose<span class="s">0.2 mg/kg IV · max 12 mg</span></div><span class="dv" id="aden-p2" style="color:var(--peds-tx)"></span></div>
+        <div class="note">antecubital vein · flush ทันที · ระวัง asthma/WPW</div>
+        <div style="margin-top:8px"><button class="mb-btn" onclick="togMix(this)"><span>🧪</span><span style="flex:1;text-align:left">วิธีผสมยา</span><span>▼ ดู</span></button>
+        <div class="mb-body">
+          <div class="mb-step"><div class="mb-num">1</div><div><span class="mb-tag">Undiluted + Flush ทันที</span><div class="mb-txt" style="font-weight:700">ฉีด IV push เร็วที่สุด (&lt;2 วินาที) ตาม flush NSS 20 ml ทันที</div><div class="mb-warn">⚠ flush ช้า = ยาถูก metabolize ก่อนถึงหัวใจ — ไม่ได้ผล</div></div></div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- AMIODARONE -->
+    <div class="dc" data-drug="amiodarone">
+      <div class="ch"><div><div class="dn">Amiodarone <span class="upd">2025</span></div><div class="dc2">150 mg/3 ml · 50 mg/ml</div></div><span class="ctag" style="background:var(--orange-lt);color:var(--orange);border:1px solid #fcd19f">CARDIAC</span></div>
+      <div class="cb">
+        <div class="dr"><div class="dl">VF/pVT 1st dose<span class="s">300 mg IV/IO bolus · หลัง shock ครั้งที่ 3</span></div><span class="sdv" style="color:var(--red)">300 mg<span class="du">= 6 ml</span></span></div>
+        <div class="dr"><div class="dl">VF/pVT 2nd dose<span class="s">150 mg IV/IO bolus</span></div><span class="sdv" style="color:var(--red)">150 mg<span class="du">= 3 ml</span></span></div>
+        <div class="dr"><div class="dl">Stable VT loading<span class="s">150 mg IV over 10 min</span></div><span class="sdv" style="color:var(--orange)">150 mg<span class="du">= 3 ml</span></span></div>
+        <div class="dr"><div class="dl">Maintenance drip<span class="s">1 mg/min×6h → 0.5 mg/min×18h</span></div><span class="sdv">60<span class="du">mg/hr</span></span></div>
+        <div class="pd"><span>👶</span> Pediatric Doses</div>
+        <div class="dr-p"><div class="dl-p">Arrest<span class="s">5 mg/kg IV/IO · max 300 mg/dose · max 15 mg/kg/day (PALS 2025)</span></div><span class="dv" id="amio-peds" style="color:var(--peds-tx)"></span></div>
+        <div class="note nb">ACLS 2025: Preferred antiarrhythmic ใน shock-refractory VF/VT</div>
+        <div style="margin-top:8px"><button class="mb-btn" onclick="togMix(this)"><span>🧪</span><span style="flex:1;text-align:left">วิธีผสมยา</span><span>▼ ดู</span></button>
+        <div class="mb-body">
+          <div class="mb-step"><div class="mb-num">1</div><div><span class="mb-tag">VF/pVT Bolus — D5W เท่านั้น</span><div class="mb-txt" style="font-weight:700">Amiodarone 300 mg (6 ml) + D5W 14 ml = 20 ml → 15 mg/ml</div><div class="mb-warn">⚠ ใช้ D5W เท่านั้น · ตกตะกอนใน NSS, LR, Acetar</div></div></div>
+          <div class="mb-step"><div class="mb-num">2</div><div><span class="mb-tag">Stable VT 150 mg / 10 นาที</span><div class="mb-txt">Amiodarone 150 mg (3 ml) + D5W 97 ml = 100 ml → 1.5 mg/ml</div><div class="mb-row"><span>Rate:</span><span>600 ml/hr × 10 นาที</span></div></div></div>
+          <div class="mb-step"><div class="mb-num">3</div><div><span class="mb-tag">Maintenance (1 mg/min)</span><div class="mb-txt">Amiodarone 900 mg (18 ml) + D5W 482 ml = 500 ml → 1.8 mg/ml</div><div class="mb-row"><span>1 mg/min:</span><span>33 ml/hr</span></div><div class="mb-row"><span>0.5 mg/min:</span><span>17 ml/hr</span></div><div class="mb-warn">⚠ เปลี่ยน bag ทุก 12 ชม. · ใช้สาย IV ทนต่อ PVC</div></div></div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- ATROPINE -->
+    <div class="dc" data-drug="atropine" style="border-color:#fed7aa;border-width:2px">
+      <div class="ch" style="background:#fffbeb"><div><div class="dn">Atropine <span class="upd">1 mg</span></div><div class="dc2">0.6 mg/ml · amp 1 ml</div></div><span class="ctag" style="background:var(--orange-lt);color:var(--orange);border:1px solid #fcd19f">CARDIAC</span></div>
+      <div class="cb">
+        <div class="dr"><div class="dl">Symptomatic Bradycardia <span class="upd">ACLS 2025</span><span class="s">1 mg IV rapid · ซ้ำได้ q3–5 min (เปลี่ยนจาก 0.5 mg)</span></div><span class="sdv" style="color:var(--orange);font-size:20px">1 mg<span class="du">= 1.67 ml</span></span></div>
+        <div class="dr"><div class="dl">Max total dose<span class="s">3 mg IV</span></div><span class="dv" id="atro-max" style="color:var(--orange)"></span></div>
+        <div class="pd"><span>👶</span> Pediatric Doses</div>
+        <div class="dr-p"><div class="dl-p">IV/IO<span class="s">0.02 mg/kg · min 0.1 mg · max single 0.5 mg (PALS 2025)</span></div><span class="dv" id="atro-p" style="color:var(--peds-tx)"></span></div>
+        <div class="dr-p"><div class="dl-p">Max total<span class="s">1 mg total (PALS 2025 — ลดจาก 3 mg)</span></div><span class="dv" id="atro-pmx" style="color:var(--peds-tx)"></span></div>
+        <div class="note nr">⚠ Adult = 1 mg · Peds max total = 1 mg · ไม่ใช้ใน infranodal block</div>
+      </div>
+    </div>
+
+    <!-- LIDOCAINE -->
+    <div class="dc" data-drug="lidocaine">
+      <div class="ch"><div><div class="dn">Lidocaine 2% <span class="upd">2025</span></div><div class="dc2">20 mg/ml · 10 ml (preservative-free)</div></div><span class="ctag" style="background:var(--orange-lt);color:var(--orange);border:1px solid #fcd19f">CARDIAC</span></div>
+      <div class="cb">
+        <div class="dr"><div class="dl">VF/pVT Loading<span class="s">1–1.5 mg/kg IV/IO bolus</span></div><span class="dv" id="lido-l" style="color:var(--red)"></span></div>
+        <div class="dr"><div class="dl">Repeat<span class="s">0.5–0.75 mg/kg q5–10 min</span></div><span class="dv" id="lido-r" style="color:var(--red)"></span></div>
+        <div class="dr"><div class="dl">Max cumulative bolus<span class="s">3 mg/kg total</span></div><span class="dv" id="lido-mx" style="color:var(--orange)"></span></div>
+        <div class="dr"><div class="dl">Maintenance<span class="s">1–4 mg/min IV drip</span></div><span class="sdv">1–4<span class="du">mg/min</span></span></div>
+        <div class="pd"><span>👶</span> Pediatric Doses</div>
+        <div class="dr-p"><div class="dl-p">Loading<span class="s">1 mg/kg IV/IO · max 100 mg (PALS 2025)</span></div><span class="dv" id="lido-p" style="color:var(--peds-tx)"></span></div>
+        <div class="dr-p"><div class="dl-p">Maintenance drip<span class="s">20–50 mcg/kg/min IV (PALS 2025)</span></div><span class="sdv" style="color:var(--peds-tx);font-size:16px">20–50<span class="du">mcg/kg/min</span></span></div>
+        <div class="note nb">ACLS 2025: Alternative ถ้าไม่มี Amiodarone</div>
+        <div class="max-b">⛔ Toxic &gt;300 mg absolute max</div>
+        <div style="margin-top:8px"><button class="mb-btn" onclick="togMix(this)"><span>🧪</span><span style="flex:1;text-align:left">วิธีผสมยา</span><span>▼ ดู</span></button>
+        <div class="mb-body">
+          <div class="mb-step"><div class="mb-num">1</div><div><span class="mb-tag">Loading Bolus — ไม่เจือจาง</span><div class="mb-txt" style="font-weight:700">ดึงปริมาตรที่คำนวณได้เข้า syringe ฉีด IV push ช้าๆ ใน 1–3 นาที</div></div></div>
+          <div class="mb-step"><div class="mb-num">2</div><div><span class="mb-tag">Maintenance 1–4 mg/min</span><div class="mb-txt">Lidocaine 2% 25 ml (500 mg) + NSS/D5W 475 ml = 500 ml → 1 mg/ml</div><div class="mb-row"><span>1 mg/min:</span><span>60 ml/hr</span></div><div class="mb-row"><span>2 mg/min:</span><span>120 ml/hr</span></div><div class="mb-row"><span>4 mg/min:</span><span>240 ml/hr</span></div><div class="mb-warn">⚠ Monitor: tinnitus, dizziness, widened QRS = toxicity</div></div></div>
+        </div></div>
+      </div>
+    </div>
+
+  </div><!-- /cardiac dg -->
+
+  <!-- ── ELECTROLYTES ── -->
+  <div class="sec"><span class="si" style="background:var(--teal-lt)">⚗️</span>Electrolytes · Metabolic</div>
+  <div class="dg">
+
+    <!-- CA GLUCONATE -->
+    <div class="dc" data-drug="ca-gluconate">
+      <div class="ch"><div><div class="dn">Calcium Gluconate 10%</div><div class="dc2">100 mg/ml · 4.5 mEq/10 ml</div></div><span class="ctag" style="background:var(--teal-lt);color:var(--teal);border:1px solid #80deea">ELECTRO</span></div>
+      <div class="cb">
+        <div class="dr"><div class="dl">Hyperkalemia / Ca-blocker OD<span class="s">1–2 g slow IV over 10–20 min</span></div><span class="sdv" style="color:var(--teal)">1–2 g<span class="du">= 10–20 ml</span></span></div>
+        <div class="dr"><div class="dl">Cardiac Arrest (severe ↑K⁺)<span class="s">3 g IV bolus</span></div><span class="sdv" style="color:var(--red)">3 g<span class="du">= 30 ml</span></span></div>
+        <div class="pd"><span>👶</span> Pediatric Doses</div>
+        <div class="dr-p"><div class="dl-p">Slow IV<span class="s">60–100 mg/kg IV over 5–10 min · max 2 g (PALS 2025)</span></div><span class="dv" id="ca-p" style="color:var(--peds-tx)"></span></div>
+        <div class="note">⚠ ห้ามผสมกับ NaHCO₃ · flush line ก่อน-หลัง</div>
+      </div>
+    </div>
+
+    <!-- MGSO4 -->
+    <div class="dc" data-drug="mgso4">
+      <div class="ch"><div><div class="dn">Magnesium Sulfate 50%</div><div class="dc2">500 mg/ml · amp 2 ml (1 g)</div></div><span class="ctag" style="background:var(--teal-lt);color:var(--teal);border:1px solid #80deea">ELECTRO</span></div>
+      <div class="cb">
+        <div class="dr"><div class="dl">Torsades de Pointes<span class="s">2 g dilute ใน 10 ml NS · IV ใน 5–20 min</span></div><span class="sdv" style="color:var(--teal)">2 g<span class="du">= 4 ml</span></span></div>
+        <div class="dr"><div class="dl">Severe Asthma<span class="s">2 g IV over 20 min</span></div><span class="sdv" style="color:var(--teal)">2 g<span class="du">= 4 ml</span></span></div>
+        <div class="dr"><div class="dl">Pre-eclampsia Loading<span class="s">4–6 g IV over 15–20 min</span></div><span class="sdv">4–6 g</span></div>
+        <div class="pd"><span>👶</span> Pediatric Doses</div>
+        <div class="dr-p"><div class="dl-p">IV<span class="s">25–50 mg/kg IV over 10–20 min · max 2 g (PALS 2025)</span></div><span class="dv" id="mg-p" style="color:var(--peds-tx)"></span></div>
+        <div class="note nr">⚠ Monitor DTR · ถ้า DTR หาย → หยุด · antidote: Ca gluconate 1 g IV</div>
+        <div style="margin-top:8px"><button class="mb-btn" onclick="togMix(this)"><span>🧪</span><span style="flex:1;text-align:left">วิธีผสมยา</span><span>▼ ดู</span></button>
+        <div class="mb-body">
+          <div class="mb-step"><div class="mb-num">1</div><div><span class="mb-tag">Torsades (2 g)</span><div class="mb-txt" style="font-weight:700">MgSO₄ 50% 4 ml + NSS/D5W 6 ml = 10 ml → 200 mg/ml · IV ใน 5–20 นาที</div><div class="mb-warn">⚠ ห้ามให้เร็ว → hypotension, resp. depression</div></div></div>
+          <div class="mb-step"><div class="mb-num">2</div><div><span class="mb-tag">Pre-eclampsia Loading (4 g)</span><div class="mb-txt">MgSO₄ 50% 8 ml + NSS 92 ml = 100 ml → 40 mg/ml</div><div class="mb-row"><span>Rate:</span><span>400 ml/hr × 15 นาที</span></div></div></div>
+          <div class="mb-step"><div class="mb-num">3</div><div><span class="mb-tag">Maintenance Eclampsia (1–2 g/hr)</span><div class="mb-txt">MgSO₄ 50% 20 ml + NSS 230 ml = 250 ml → 40 mg/ml</div><div class="mb-row"><span>1 g/hr:</span><span>25 ml/hr</span></div><div class="mb-row"><span>2 g/hr:</span><span>50 ml/hr</span></div></div></div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- NAHCO3 -->
+    <div class="dc" data-drug="nahco3">
+      <div class="ch"><div><div class="dn">Sodium Bicarbonate 7.5% <span class="upd">2025</span></div><div class="dc2">0.9 mEq/ml · 50 ml (45 mEq)</div></div><span class="ctag" style="background:var(--green-lt);color:var(--green);border:1px solid #86efac">METABOLIC</span></div>
+      <div class="cb">
+        <div class="dr"><div class="dl">Dose (1 mEq/kg)<span class="s">Metabolic acidosis · Hyperkalemia · TCA OD</span></div><span class="dv" id="bic-meq" style="color:var(--green)"></span></div>
+        <div class="dr"><div class="dl">ปริมาณ 7.5% ที่ดึง<span class="s">mEq ÷ 0.9 mEq/ml</span></div><span class="dv" id="bic-ml" style="color:var(--green)"></span></div>
+        <div class="dr"><div class="dl">TCA/Na-blocker OD<span class="s">1–2 mEq/kg · target pH 7.45–7.55</span></div><span class="dv" id="bic-tca" style="color:var(--green)"></span></div>
+        <div class="pd"><span>👶</span> Pediatric Doses</div>
+        <div class="dr-p"><div class="dl-p">IV/IO slow<span class="s">1 mEq/kg · dilute 1:1 NSS/D5W ในเด็กเล็ก (PALS 2025)</span></div><span class="dv" id="bic-p" style="color:var(--peds-tx)"></span></div>
+        <div class="note ng">ACLS 2025: ไม่แนะนำ routine · ใช้เฉพาะ hyperK / TCA OD / severe acidosis</div>
+      </div>
+    </div>
+
+    <!-- GLUCOSE -->
+    <div class="dc" data-drug="glucose">
+      <div class="ch"><div><div class="dn">Glucose 50%</div><div class="dc2">500 mg/ml · 50 ml vial</div></div><span class="ctag" style="background:var(--green-lt);color:var(--green);border:1px solid #86efac">METABOLIC</span></div>
+      <div class="cb">
+        <div class="dr"><div class="dl">Hypoglycemia Adult<span class="s">25 g IV push ช้าๆ ผ่าน vein ใหญ่</span></div><span class="sdv" style="color:var(--green)">25 g<span class="du">= 50 ml</span></span></div>
+        <div class="pd"><span>👶</span> Pediatric Doses (PALS 2025)</div>
+        <div class="dr-p"><div class="dl-p">Neonate/Infant (&lt;1 yr) → D10W<span class="s">2–4 ml/kg IV/IO</span></div><span class="dv" id="gluc-neo" style="color:var(--peds-tx)"></span></div>
+        <div class="dr-p"><div class="dl-p">Child (1–8 yr) → D25W<span class="s">2–4 ml/kg IV/IO</span></div><span class="dv" id="gluc-ch" style="color:var(--peds-tx)"></span></div>
+        <div class="dr-p"><div class="dl-p">Adolescent (&gt;8 yr) → D50W<span class="s">1–2 ml/kg IV/IO · max 50 ml</span></div><span class="dv" id="gluc-ad" style="color:var(--peds-tx)"></span></div>
+        <div class="note np">PALS 2025: Neonate→D10W · Child→D25W · Adolescent→D50W · ห้ามให้ D50W โดยตรงในเด็กเล็ก</div>
+      </div>
+    </div>
+
+  </div><!-- /electro dg -->
+
+  <!-- ── VASOPRESSORS ── -->
+  <div class="sec"><span class="si" style="background:var(--purple-lt)">💉</span>Vasopressors · Infusions</div>
+  <div class="dg">
+
+    <!-- DOPAMINE -->
+    <div class="dc" data-drug="dopamine">
+      <div class="ch"><div><div class="dn">Dopamine <span class="upd">2025</span></div><div class="dc2">250 mg/10 ml (25 mg/ml)</div></div><span class="ctag" style="background:var(--purple-lt);color:var(--purple);border:1px solid #c4b5fd">VASO</span></div>
+      <div class="cb">
+        <div class="infomix">Mix: 250 mg ใน NSS 250 ml = <strong>1,000 µg/ml</strong> · น้ำหนัก: <strong id="dopa-wt" style="color:var(--purple);font-family:var(--mono)">70</strong> kg</div>
+        <table class="it">
+          <thead><tr><th>Dose mcg/kg/min</th><th>Effect</th><th style="text-align:right">ml/hr</th></tr></thead>
+          <tbody>
+            <tr><td>2–5 mcg/kg/min</td><td style="color:var(--teal)">Renal/Splanchnic</td><td class="iv" id="dopa-lo"></td></tr>
+            <tr><td>5–10 mcg/kg/min</td><td style="color:var(--navy)">Inotropic β1</td><td class="iv" id="dopa-mi"></td></tr>
+            <tr><td>10–20 mcg/kg/min</td><td style="color:var(--red)">Vasopressor α1</td><td class="iv" id="dopa-hi"></td></tr>
+          </tbody>
+        </table>
+        <div class="note nb">ACLS 2025: 2nd line bradycardia ถ้า Atropine ไม่ได้ผล</div>
+        <div style="margin-top:8px"><button class="mb-btn" onclick="togMix(this)"><span>🧪</span><span style="flex:1;text-align:left">วิธีผสมยา</span><span>▼ ดู</span></button>
+        <div class="mb-body">
+          <div class="mb-step"><div class="mb-num">1</div><div><span class="mb-tag">Standard Mix</span><div class="mb-txt" style="font-weight:700">Dopamine 250 mg (10 ml) + NSS 240 ml = 250 ml → 1,000 µg/ml</div><div id="mb-dopa-rows"></div><div class="mb-warn">⚠ ห้ามผสมกับ NaHCO₃ · ใช้ NSS หรือ D5W</div></div></div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- NOREPINEPHRINE -->
+    <div class="dc" data-drug="norepinephrine">
+      <div class="ch"><div><div class="dn">Norepinephrine</div><div class="dc2">4 mg/4 ml (1 mg/ml)</div></div><span class="ctag" style="background:var(--purple-lt);color:var(--purple);border:1px solid #c4b5fd">VASO</span></div>
+      <div class="cb">
+        <div class="infomix">Mix: 4 mg ใน D5W 250 ml = <strong>16 µg/ml</strong> · น้ำหนัก: <strong id="norepi-wt" style="color:var(--purple);font-family:var(--mono)">70</strong> kg</div>
+        <table class="it">
+          <thead><tr><th>Dose mcg/kg/min</th><th>Indication</th><th style="text-align:right">ml/hr</th></tr></thead>
+          <tbody>
+            <tr><td>0.01–0.1 mcg/kg/min</td><td style="color:var(--navy)">Septic Shock</td><td class="iv" id="norepi-lo"></td></tr>
+            <tr><td>0.1–0.5 mcg/kg/min</td><td style="color:var(--red)">Refractory Shock</td><td class="iv" id="norepi-hi"></td></tr>
+          </tbody>
+        </table>
+        <div class="note nr">⚠ Central line เท่านั้น · MAP ≥65 mmHg · 1st line septic shock</div>
+        <div style="margin-top:8px"><button class="mb-btn" onclick="togMix(this)"><span>🧪</span><span style="flex:1;text-align:left">วิธีผสมยา</span><span>▼ ดู</span></button>
+        <div class="mb-body">
+          <div class="mb-step"><div class="mb-num">1</div><div><span class="mb-tag">Standard Mix — D5W เท่านั้น</span><div class="mb-txt" style="font-weight:700">Norepinephrine 4 mg (4 ml) + D5W 246 ml = 250 ml → 16 µg/ml</div><div id="mb-norepi-rows"></div><div class="mb-warn">⚠ D5W หรือ D5NSS เท่านั้น · ห้าม NSS/LR/Acetar → inactivation · Central line เท่านั้น</div></div></div>
+          <div class="mb-step"><div class="mb-num">2</div><div><span class="mb-tag">Double Strength (limit fluid)</span><div class="mb-txt">Norepinephrine 8 mg (8 ml) + D5W 242 ml = 250 ml → 32 µg/ml (rate ลดครึ่ง)</div></div></div>
+        </div></div>
+      </div>
+    </div>
+
+  </div><!-- /vaso dg -->
+
+  <!-- ── SEDATION ── -->
+  <div class="sec"><span class="si" style="background:#fdf4ff">🧠</span>Sedation · Seizure</div>
+  <div class="dg">
+    <div class="dc" data-drug="diazepam">
+      <div class="ch"><div><div class="dn">Diazepam</div><div class="dc2">10 mg/2 ml (5 mg/ml)</div></div><span class="ctag" style="background:#fdf4ff;color:#86198f;border:1px solid #e9d5ff">SEDATION</span></div>
+      <div class="cb">
+        <div class="dr"><div class="dl">Seizure Adult<span class="s">5–10 mg IV ช้า ≤2 mg/min</span></div><span class="sdv" style="color:#86198f">5–10 mg<span class="du">= 1–2 ml</span></span></div>
+        <div class="dr"><div class="dl">Repeat · Max 30 mg<span class="s">q5–10 min</span></div><span class="sdv" style="color:var(--orange)">Max 30 mg<span class="du">= 6 ml</span></span></div>
+        <div class="pd"><span>👶</span> Pediatric Doses</div>
+        <div class="dr-p"><div class="dl-p">IV/IO<span class="s">0.1–0.5 mg/kg IV · max 10 mg (PALS 2025 ขยาย max)</span></div><span class="dv" id="diaz-iv" style="color:var(--peds-tx)"></span></div>
+        <div class="dr-p"><div class="dl-p">Rectal (PR)<span class="s">0.5 mg/kg PR · max 20 mg (PALS 2025)</span></div><span class="dv" id="diaz-pr" style="color:var(--peds-tx)"></span></div>
+        <div class="note nr">⚠ เตรียม BVM · หยุดถ้า RR&lt;10 หรือ SpO₂↓ · Antidote: Flumazenil 0.2 mg IV</div>
+        <div style="margin-top:8px"><button class="mb-btn" onclick="togMix(this)"><span>🧪</span><span style="flex:1;text-align:left">วิธีผสมยา</span><span>▼ ดู</span></button>
+        <div class="mb-body">
+          <div class="mb-step"><div class="mb-num">1</div><div><span class="mb-tag">Adult IV — Undiluted</span><div class="mb-txt" style="font-weight:700">ฉีด IV push ช้าๆ ≤2 mg/min ผ่าน vein ใหญ่ ไม่เจือจาง</div><div class="mb-warn">⚠ Diazepam precipitate ใน NSS, LR, Acetar — ห้าม dilute ด้วยสารน้ำเหล่านี้</div></div></div>
+          <div class="mb-step"><div class="mb-num">2</div><div><span class="mb-tag">Peds — dilute ใน D5W เท่านั้น</span><div class="mb-txt">ถ้าปริมาตร &lt;0.2 ml ให้ dilute ใน D5W 1 ml ก่อน (ห้าม NSS)</div></div></div>
+          <div class="mb-step"><div class="mb-num">3</div><div><span class="mb-tag">Rectal (PR)</span><div class="mb-txt">ถอด needle → ใส่ soft tip → สอดเข้า rectum 2–4 cm → ดันยา → บีบก้นไว้ 3–5 นาที</div></div></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="ft-note">⚠ ใช้เป็นแนวทางเท่านั้น · ปรับตาม clinical judgment<br>ACLS 2025 · PALS 2025 · SSC 2024 · Trissel's · King Guide</p>
+</div><!-- /pg-drugs -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 2 — IV COMPAT
+═══════════════════════════════════════════════════════════════ -->
+<div id="pg-compat" class="page pg">
+  <div style="background:var(--surface);border:2px solid var(--teal);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)">
+    <div style="background:var(--teal-lt);padding:12px 16px;border-bottom:2px solid var(--teal);display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">🧪</span>
+      <div><div style="font-size:15px;font-weight:800;color:var(--teal)">IV Compatibility — Emergency Drugs</div><div style="font-size:11px;color:#0e7490;margin-top:2px">ความเข้ากันได้เมื่อให้ทาง IV line เดียวกัน (Y-site / admixture)</div></div>
+    </div>
+    <div style="padding:12px 14px;overflow-x:auto">
+      <div class="ct">
+        <table>
+          <thead><tr>
+            <th>Drug A↓ / B→</th>
+            <th>Adrenaline</th><th>Amiodarone</th><th>Dopamine</th><th>Norepi</th>
+            <th>NaHCO₃</th><th>Ca Gluc</th><th>MgSO₄</th><th>Lidocaine</th><th>Diazepam</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Adrenaline</td><td class="cc-u">—</td><td class="cc-c">⚠</td><td class="cc-y">✓</td><td class="cc-y">✓</td><td class="cc-n">✗</td><td class="cc-c">⚠</td><td class="cc-y">✓</td><td class="cc-y">✓</td><td class="cc-n">✗</td></tr>
+            <tr><td>Amiodarone</td><td class="cc-c">⚠</td><td class="cc-u">—</td><td class="cc-c">⚠</td><td class="cc-c">⚠</td><td class="cc-n">✗</td><td class="cc-n">✗</td><td class="cc-n">✗</td><td class="cc-c">⚠</td><td class="cc-n">✗</td></tr>
+            <tr><td>Dopamine</td><td class="cc-y">✓</td><td class="cc-c">⚠</td><td class="cc-u">—</td><td class="cc-y">✓</td><td class="cc-n">✗</td><td class="cc-c">⚠</td><td class="cc-y">✓</td><td class="cc-y">✓</td><td class="cc-n">✗</td></tr>
+            <tr><td>Norepinephrine</td><td class="cc-y">✓</td><td class="cc-c">⚠</td><td class="cc-y">✓</td><td class="cc-u">—</td><td class="cc-n">✗</td><td class="cc-c">⚠</td><td class="cc-y">✓</td><td class="cc-y">✓</td><td class="cc-n">✗</td></tr>
+            <tr><td>NaHCO₃ 7.5%</td><td class="cc-n">✗</td><td class="cc-n">✗</td><td class="cc-n">✗</td><td class="cc-n">✗</td><td class="cc-u">—</td><td class="cc-n">✗</td><td class="cc-n">✗</td><td class="cc-n">✗</td><td class="cc-n">✗</td></tr>
+            <tr><td>Ca Gluconate</td><td class="cc-c">⚠</td><td class="cc-n">✗</td><td class="cc-c">⚠</td><td class="cc-c">⚠</td><td class="cc-n">✗</td><td class="cc-u">—</td><td class="cc-n">✗</td><td class="cc-y">✓</td><td class="cc-n">✗</td></tr>
+            <tr><td>MgSO₄ 50%</td><td class="cc-y">✓</td><td class="cc-n">✗</td><td class="cc-y">✓</td><td class="cc-y">✓</td><td class="cc-n">✗</td><td class="cc-n">✗</td><td class="cc-u">—</td><td class="cc-y">✓</td><td class="cc-n">✗</td></tr>
+            <tr><td>Lidocaine 2%</td><td class="cc-y">✓</td><td class="cc-c">⚠</td><td class="cc-y">✓</td><td class="cc-y">✓</td><td class="cc-n">✗</td><td class="cc-y">✓</td><td class="cc-y">✓</td><td class="cc-u">—</td><td class="cc-n">✗</td></tr>
+            <tr><td>Adenosine</td><td class="cc-c">⚠</td><td class="cc-n">✗</td><td class="cc-c">⚠</td><td class="cc-c">⚠</td><td class="cc-n">✗</td><td class="cc-c">⚠</td><td class="cc-c">⚠</td><td class="cc-c">⚠</td><td class="cc-n">✗</td></tr>
+            <tr><td>Atropine</td><td class="cc-y">✓</td><td class="cc-c">⚠</td><td class="cc-y">✓</td><td class="cc-y">✓</td><td class="cc-c">⚠</td><td class="cc-y">✓</td><td class="cc-y">✓</td><td class="cc-y">✓</td><td class="cc-n">✗</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:11px">
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:12px;border-radius:3px;background:#d1fae5"></div><span style="color:#065f46;font-weight:700">✓ Compatible</span></div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:12px;border-radius:3px;background:#fee2e2"></div><span style="color:#991b1b;font-weight:700">✗ Incompatible</span></div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:12px;border-radius:3px;background:#fef9c3"></div><span style="color:#854d0e;font-weight:700">⚠ Caution</span></div>
+      </div>
+      <div class="note nb" style="margin-top:10px"><strong>สำคัญ:</strong> NaHCO₃ incompatible กับยาทุกตัว · ให้ทาง dedicated line<br>Ca Gluconate + MgSO₄ = precipitate · Diazepam precipitate ใน NSS/LR</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 3 — ACETAR
+═══════════════════════════════════════════════════════════════ -->
+<div id="pg-actar" class="page pg">
+  <div style="background:var(--surface);border:2.5px solid var(--orange);border-radius:var(--r);overflow:hidden">
+    <div style="background:var(--orange-lt);padding:12px 16px;border-bottom:2px solid var(--orange);display:flex;align-items:center;gap:10px">
+      <span style="font-size:22px">⚠️</span>
+      <div><div style="font-size:15px;font-weight:800;color:var(--orange)">Acetar / LR Drug Warnings</div><div style="font-size:11px;color:#92400e;margin-top:2px">คำเตือนการใช้ยากับ Acetate Ringer's / Lactated Ringer's</div></div>
+    </div>
+    <div style="padding:12px 14px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-bottom:12px">
+        <div class="actar-card">
+          <div style="font-size:12px;font-weight:800;color:var(--amber);margin-bottom:5px">🚫 ห้ามผสมหรือให้ใน line เดียวกับ Acetar/LR</div>
+          <div class="actar-item"><span style="color:var(--orange);font-weight:700">⚠ </span><strong>Amiodarone</strong> — ตกตะกอนใน Ca²⁺ solution · ใช้ D5W เท่านั้น</div>
+          <div class="actar-item"><span style="color:var(--orange);font-weight:700">⚠ </span><strong>Ca Gluconate</strong> — Ca²⁺ ซ้ำ → hypercalcemia · NSS/D5W</div>
+          <div class="actar-item"><span style="color:var(--orange);font-weight:700">⚠ </span><strong>MgSO₄</strong> — Mg-Ca precipitate · flush NSS ก่อน-หลัง</div>
+          <div class="actar-item"><span style="color:var(--orange);font-weight:700">⚠ </span><strong>NaHCO₃</strong> — CaCO₃ precipitate ทันที · ห้ามเด็ดขาด</div>
+          <div class="actar-item"><span style="color:var(--orange);font-weight:700">⚠ </span><strong>Diazepam</strong> — precipitate ใน Acetar/LR · undiluted หรือ D5W</div>
+        </div>
+        <div class="actar-card">
+          <div style="font-size:12px;font-weight:800;color:var(--amber);margin-bottom:5px">⚠️ ควรระวัง — Flush ก่อนให้</div>
+          <div class="actar-item"><span style="color:var(--orange);font-weight:700">⚠ </span><strong>Adrenaline</strong> — stable แต่ flush 20 ml NSS ก่อน-หลัง</div>
+          <div class="actar-item"><span style="color:var(--orange);font-weight:700">⚠ </span><strong>Dopamine</strong> — acetate เร่ง degradation · ใช้ NSS/D5W</div>
+          <div class="actar-item"><span style="color:var(--orange);font-weight:700">⚠ </span><strong>Norepinephrine</strong> — D5W/D5NSS · ห้าม alkaline solution</div>
+          <div class="actar-item"><span style="color:var(--orange);font-weight:700">⚠ </span><strong>Lidocaine</strong> — NSS/D5W เป็น preferred diluent</div>
+          <div class="actar-item"><span style="color:var(--orange);font-weight:700">⚠ </span><strong>Adenosine</strong> — undiluted rapid bolus · ไม่เจือจางใน LR</div>
+        </div>
+      </div>
+      <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;padding:10px 13px">
+        <div style="font-size:12px;font-weight:800;color:#c2410c;margin-bottom:6px">🔑 สรุปหลักการ</div>
+        <div class="aw"><span class="aw-tag">Amiodarone</span>D5W เท่านั้น — ตกตะกอนใน NSS, LR, Acetar</div>
+        <div class="aw"><span class="aw-tag">NaHCO₃</span>dedicated line + flush NSS 20 ml ก่อน-หลัง</div>
+        <div class="aw"><span class="aw-tag">Ca Gluconate</span>NSS/D5W · ห้ามผสมกับ phosphate/bicarb</div>
+        <div class="aw"><span class="aw-tag">Norepinephrine</span>D5W หรือ D5NSS · ห้าม alkaline solution</div>
+        <div class="aw"><span class="aw-tag">Diazepam</span>undiluted large vein หรือ D5W &lt;0.1 mg/ml</div>
+        <div class="aw"><span class="aw-tag">General Rule</span>flush NSS 20 ml ก่อน-หลังทุกครั้งถ้าไม่แน่ใจ</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 4 — QR CODE GENERATOR
+═══════════════════════════════════════════════════════════════ -->
+<div id="pg-qr" class="page qr-pg">
+  <div style="text-align:center;margin-bottom:16px">
+    <div style="font-size:32px;margin-bottom:6px">📱</div>
+    <div style="font-size:18px;font-weight:800">สร้าง QR Code</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:3px">สร้าง QR สำหรับแชร์ App นี้ · ใช้งานได้ออฟไลน์</div>
+  </div>
+
+  <!-- Input card -->
+  <div class="qr-card">
+    <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px">🔗 ใส่ URL ของ App</div>
+    <input type="url" id="qr-input" class="qr-url-input"
+      placeholder="https://..."
+      value="https://claude.site/drug-dose-card">
+    <div style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.6">
+      💡 วิธีรับ URL: กด <strong>Share</strong> ใน Claude Artifact → Copy Link → วาง URL ด้านบน
+    </div>
+    <button class="qr-gen-btn" onclick="generateQR()">⚡ สร้าง QR Code</button>
+    <div id="qr-dl-wrap" style="display:none">
+      <button class="qr-dl-btn" onclick="downloadQR()">⬇ ดาวน์โหลด QR Image (PNG)</button>
+    </div>
+  </div>
+
+  <!-- QR display -->
+  <div class="qr-card" id="qr-result-card" style="display:none">
+    <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;text-align:center">✅ QR Code พร้อมใช้งาน</div>
+    <div class="qr-canvas-wrap">
+      <canvas id="qr-canvas" width="290" height="290"></canvas>
+    </div>
+    <div id="qr-url-display" style="font-family:var(--mono);font-size:10px;color:var(--text3);
+      word-break:break-all;text-align:center;background:var(--gray-lt);
+      border-radius:6px;padding:7px 10px;margin-top:4px"></div>
+  </div>
+
+  <!-- How to use -->
+  <div class="card-section">
+    <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:10px">📖 วิธีใช้งาน QR Code</div>
+    <div class="qr-steps">
+      <div class="qr-step"><div class="qr-step-n">1</div><div><strong>รับ URL</strong> จาก Claude Share → Copy link ของ App</div></div>
+      <div class="qr-step"><div class="qr-step-n">2</div><div><strong>วาง URL</strong> ในช่องด้านบน แล้วกด "สร้าง QR Code"</div></div>
+      <div class="qr-step"><div class="qr-step-n">3</div><div><strong>ดาวน์โหลด</strong> QR Image → พิมพ์ติดที่ ER หรือส่งให้ทีม</div></div>
+      <div class="qr-step"><div class="qr-step-n">4</div><div><strong>สแกน QR</strong> ด้วย Camera → เปิด App ได้ทันทีไม่ต้องดาวน์โหลด</div></div>
+    </div>
+  </div>
+
+  <!-- Add to Home Screen -->
+  <div class="card-section" style="background:var(--navy-lt);border-color:#b3c6f5">
+    <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:8px">📲 เพิ่มลง Home Screen (ใช้เหมือน App)</div>
+    <div style="font-size:12px;color:#1e40af;line-height:1.7">
+      <strong>iPhone/iPad:</strong> Safari → Share 🔗 → "Add to Home Screen"<br>
+      <strong>Android:</strong> Chrome → Menu ⋮ → "Add to Home Screen"<br>
+      <strong>ไม่ต้องดาวน์โหลด · ใช้งาน offline · เปิดเร็วเหมือน App จริง</strong>
+    </div>
+  </div>
+
+  <p class="ft-note">⚠ ใช้เป็นแนวทางเท่านั้น · ปรับตาม clinical judgment เสมอ</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 5 — INFO
+═══════════════════════════════════════════════════════════════ -->
+<div id="pg-info" class="page pg">
+  <div style="text-align:center;margin-bottom:16px">
+    <div style="font-size:40px;margin-bottom:8px">💊</div>
+    <div style="font-size:18px;font-weight:800">Pre-Calculated Drug Dose Card</div>
+    <span class="vtag" style="margin-top:8px;display:inline-block">v3.2 — ACLS 2025 · PALS 2025</span>
+    <div style="font-size:11px;color:var(--text3);margin-top:6px">หน่วยอุบัติเหตุและฉุกเฉิน</div>
+  </div>
+  <div class="info-card">
+    <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:8px">🆕 อัปเดต v3.2</div>
+    <div class="info-item">· Adrenaline IV: ต้อง dilute 1 mg + NSS 9 ml = 10 ml (0.1 mg/ml)</div>
+    <div class="info-item">· PALS 2025: Glucose แบ่งตามอายุ D10W/D25W/D50W</div>
+    <div class="info-item">· PALS 2025: Diazepam Peds max 0.5 mg/kg</div>
+    <div class="info-item">· แถวม่วง = Peds · แถวขาว = Adult ทุก drug card</div>
+    <div class="info-item">· QR Code generator ในตัว (หน้า QR)</div>
+  </div>
+  <div class="info-card">
+    <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:8px">💊 ยาที่ครอบคลุม (12 ชนิด)</div>
+    <div class="info-item">· Cardiac: Adrenaline, Adenosine, Amiodarone, Atropine, Lidocaine</div>
+    <div class="info-item">· Electro: Ca Gluconate, MgSO₄, NaHCO₃, Glucose 50%</div>
+    <div class="info-item">· Vaso: Dopamine, Norepinephrine (infusion rate)</div>
+    <div class="info-item">· Sedation: Diazepam (IV + PR)</div>
+  </div>
+  <div class="info-card">
+    <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:8px">📚 References</div>
+    <div class="info-item">· AHA ACLS Guidelines 2025</div>
+    <div class="info-item">· AHA PALS Guidelines 2025</div>
+    <div class="info-item">· Surviving Sepsis Campaign 2024</div>
+    <div class="info-item">· Trissel's Handbook on Injectable Drugs (22nd ed.)</div>
+    <div class="info-item">· King Guide to Parenteral Admixtures (2023)</div>
+  </div>
+  
+  <!-- GA Analytics Info -->
+  <div style="background:#fff;border:1.5px solid #b3c6f5;border-radius:10px;padding:13px 15px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+    <div style="font-size:13px;font-weight:800;color:#1a3a6b;margin-bottom:8px">📊 ดูสถิติการใช้งาน (Google Analytics)</div>
+    <div style="font-size:12px;color:#374151;padding:3px 0;border-bottom:1px solid #d0dae8;line-height:1.6">· เข้า <strong>analytics.google.com</strong> → Reports → Realtime</div>
+    <div style="font-size:12px;color:#374151;padding:3px 0;border-bottom:1px solid #d0dae8;line-height:1.6">· ดู Events: <code style="background:#f3f4f6;padding:1px 4px;border-radius:3px;font-size:11px">app_open</code>, <code style="background:#f3f4f6;padding:1px 4px;border-radius:3px;font-size:11px">tab_viewed</code>, <code style="background:#f3f4f6;padding:1px 4px;border-radius:3px;font-size:11px">mix_box_opened</code></div>
+    <div style="font-size:12px;color:#374151;padding:3px 0;border-bottom:1px solid #d0dae8;line-height:1.6">· ดู <strong>Users</strong> รายวัน/สัปดาห์/เดือน ใน Audience Overview</div>
+    <div style="font-size:12px;color:#374151;padding:3px 0;line-height:1.6">· แทนที่ <code style="background:#f3f4f6;padding:1px 4px;border-radius:3px;font-size:11px">G-XXXXXXXXXX</code> ด้วย ID จริงในโค้ด &lt;head&gt;</div>
+  </div>
+  <div style="background:var(--red-lt);border:1.5px solid #f8b4b4;border-radius:var(--r);padding:12px 14px">
+    <div style="font-size:13px;font-weight:800;color:var(--red);margin-bottom:6px">⚠️ คำเตือน</div>
+    <p style="font-size:12px;color:var(--text2);line-height:1.7">ใช้เป็น <strong>แนวทางประกอบ clinical judgment เท่านั้น</strong> · ต้องปรับตามสภาพผู้ป่วยจริงเสมอ</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BOTTOM NAV
+═══════════════════════════════════════════════════════════════ -->
+<nav class="bnav">
+  <button class="nb active" onclick="showPg('drugs',this)"><span class="ico">💊</span><span>ยา</span></button>
+  <button class="nb" onclick="showPg('compat',this)"><span class="ico">🧪</span><span>IV Compat</span></button>
+  <button class="nb" onclick="showPg('actar',this)"><span class="ico">⚠️</span><span>Acetar/LR</span></button>
+  <button class="nb" onclick="showPg('qr',this)"><span class="ico">📱</span><span>QR Code</span></button>
+  <button class="nb" onclick="showPg('info',this)"><span class="ico">ℹ️</span><span>เกี่ยวกับ</span></button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════ -->
+<script>
+/* ── NAV ──────────────────────────────────────────────────── */
+function showPg(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+  if(typeof trackPage === 'function') trackPage(id);
+}
+
+/* ── WEIGHT ───────────────────────────────────────────────── */
+function getW(){return parseFloat(document.getElementById('wt').value)||70}
+function syncSlider(){document.getElementById('wt-sl').value=Math.min(getW(),150)}
+function syncInput(){
+  const v=parseInt(document.getElementById('wt-sl').value);
+  document.getElementById('wt').value=v;
+  document.querySelectorAll('.pb').forEach(b=>b.classList.toggle('active',parseInt(b.textContent)===v));
+}
+function setW(w){
+  document.getElementById('wt').value=w;
+  document.getElementById('wt-sl').value=Math.min(w,150);
+  document.querySelectorAll('.pb').forEach(b=>b.classList.toggle('active',parseInt(b.textContent)===w));
+  updateAll();
+}
+
+/* ── MIX BOX TOGGLE ──────────────────────────────────────── */
+function togMix(btn, drugName){
+  if(typeof trackMixOpen === 'function' && drugName) trackMixOpen(drugName);
+  const body=btn.nextElementSibling;
+  const open=body.classList.toggle('open');
+  btn.classList.toggle('open',open);
+  const arr=btn.querySelector('span:last-child');
+  arr.textContent=open?'▲ ซ่อน':'▼ ดู';
+}
+
+/* ── FLASH ────────────────────────────────────────────────── */
+let _tick=0;
+function flash(el){
+  if(!el)return;
+  el.classList.remove('flash');
+  void el.offsetWidth;
+  el.classList.add('flash');
+}
+function setVal(id,html){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML=html;
+  flash(el);
+}
+function setTxt(id,txt){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.textContent=txt;
+  flash(el);
+}
+
+/* ── FORMAT HELPERS ──────────────────────────────────────── */
+const du=(t,u)=>`${t}<span style="font-size:11px;opacity:.7;margin-left:2px">${u}</span>`;
+
+/* ── CALCULATIONS ─────────────────────────────────────────── */
+function updateAll(){
+  const w=getW();
+  if(typeof trackWeightChange === "function") trackWeightChange(w);
+
+  /* ADRENALINE */
+  const epA=Math.min(w*.01,1);
+  const epNss=(epA*10-epA).toFixed(1);
+  setVal('epi-peds',du(epA.toFixed(2),`mg + NSS ${epNss} ml → ${(epA*10).toFixed(1)} ml (0.1 mg/ml)`));
+  const epIM=Math.min(w*.01,.5);
+  setVal('epi-im',du(epIM.toFixed(2),'mg IM'));
+  // update mixbox peds rows
+  const mbEpi=document.getElementById('mb-epi-peds-rows');
+  if(mbEpi) mbEpi.innerHTML=`
+    <div class="mb-row"><span>ตัวอย่าง ${w} kg → ${epA.toFixed(2)} mg:</span><span>${epA.toFixed(2)} ml + NSS ${epNss} ml = ${(epA*10).toFixed(1)} ml</span></div>`;
+
+  /* ADENOSINE */
+  const ad1=Math.min(w*.1,6), ad2=Math.min(w*.2,12);
+  setVal('aden-p1',du(ad1.toFixed(1),`mg = ${(ad1/3).toFixed(2)} ml`));
+  setVal('aden-p2',du(ad2.toFixed(1),`mg = ${(ad2/3).toFixed(2)} ml`));
+
+  /* AMIODARONE */
+  const am=Math.min(w*5,300);
+  setVal('amio-peds',du(am.toFixed(0),`mg = ${(am/50).toFixed(1)} ml`));
+
+  /* ATROPINE */
+  const atMx=Math.min(w*.04,3);
+  setVal('atro-max',du(atMx.toFixed(2),`mg = ${(atMx/.6).toFixed(2)} ml`));
+  const atP=Math.min(Math.max(w*.02,.1),.5);
+  setVal('atro-p',du(atP.toFixed(2),`mg = ${(atP/.6).toFixed(2)} ml`));
+  setVal('atro-pmx',du(Math.min(w*.04,1).toFixed(2),'mg total max'));
+
+  /* LIDOCAINE */
+  const ll=w*1.5, lr=w*.75, lm=Math.min(w*3,300), lidP=Math.min(w,100);
+  setVal('lido-l',du(`${w.toFixed(0)}–${ll.toFixed(0)}`,`mg = ${(w/20).toFixed(1)}–${(ll/20).toFixed(1)} ml`));
+  setVal('lido-r',du(`${(w*.5).toFixed(0)}–${lr.toFixed(0)}`,`mg = ${(w*.5/20).toFixed(1)}–${(lr/20).toFixed(1)} ml`));
+  setVal('lido-mx',du(lm.toFixed(0),`mg = ${(lm/20).toFixed(1)} ml`));
+  setVal('lido-p',du(lidP.toFixed(0),`mg = ${(lidP/20).toFixed(1)} ml`));
+
+  /* CALCIUM GLUCONATE */
+  const c1=Math.min(w*60,2000), c2=Math.min(w*100,2000);
+  setVal('ca-p',du(`${c1.toFixed(0)}–${c2.toFixed(0)}`,`mg = ${(c1/100).toFixed(1)}–${(c2/100).toFixed(1)} ml`));
+
+  /* MGSO4 */
+  const mg1=w*25, mg2=Math.min(w*50,2000);
+  setVal('mg-p',du(`${(mg1/1000).toFixed(2)}–${(mg2/1000).toFixed(2)}`,`g = ${(mg1/2000).toFixed(2)}–${(mg2/2000).toFixed(2)} ml 50%`));
+
+  /* NAHCO3 */
+  const bm=w, bv=bm/.9;
+  setVal('bic-meq',du(bm.toFixed(0),'mEq'));
+  setVal('bic-ml',du(bv.toFixed(1),'ml (7.5%)'));
+  setVal('bic-tca',du(`${bm.toFixed(0)}–${(bm*2).toFixed(0)}`,'mEq'));
+  setVal('bic-p',du(bm.toFixed(0),`mEq = ${bv.toFixed(1)} ml 7.5%`));
+
+  /* GLUCOSE (PALS 2025) */
+  setVal('gluc-neo',du(`${(w*2).toFixed(0)}–${(w*4).toFixed(0)}`,'ml D10W'));
+  setVal('gluc-ch',du(`${(w*2).toFixed(0)}–${(w*4).toFixed(0)}`,'ml D25W'));
+  setVal('gluc-ad',du(Math.min(w*1.5,75).toFixed(0),'ml D50W'));
+
+  /* DIAZEPAM (PALS 2025) */
+  const dIV=Math.min(w*.5,10);
+  setVal('diaz-iv',du(`${(w*.1).toFixed(1)}–${dIV.toFixed(1)}`,`mg = ${(w*.1/5).toFixed(2)}–${(dIV/5).toFixed(2)} ml`));
+  setVal('diaz-pr',du(Math.min(w*.5,20).toFixed(1),'mg PR'));
+
+  /* DOPAMINE */
+  const dr=d=>d*w*60/1000;
+  document.getElementById('dopa-wt').textContent=w;
+  [['dopa-lo',[2,5]],['dopa-mi',[5,10]],['dopa-hi',[10,20]]].forEach(([id,rng])=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.textContent=`${dr(rng[0]).toFixed(1)}–${dr(rng[1]).toFixed(1)}`;
+    flash(el);
+  });
+  const mbD=document.getElementById('mb-dopa-rows');
+  if(mbD) mbD.innerHTML=`
+    <div class="mb-row"><span>${w} kg · 5 mcg/kg/min:</span><span>${dr(5).toFixed(1)} ml/hr</span></div>
+    <div class="mb-row"><span>${w} kg · 10 mcg/kg/min:</span><span>${dr(10).toFixed(1)} ml/hr</span></div>
+    <div class="mb-row"><span>${w} kg · 15 mcg/kg/min:</span><span>${dr(15).toFixed(1)} ml/hr</span></div>`;
+
+  /* NOREPINEPHRINE */
+  const nr=d=>d*w*60/16;
+  document.getElementById('norepi-wt').textContent=w;
+  [['norepi-lo',[.01,.1]],['norepi-hi',[.1,.5]]].forEach(([id,rng])=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.textContent=`${nr(rng[0]).toFixed(1)}–${nr(rng[1]).toFixed(1)}`;
+    flash(el);
+  });
+  const mbN=document.getElementById('mb-norepi-rows');
+  if(mbN) mbN.innerHTML=`
+    <div class="mb-row"><span>${w} kg · 0.05 mcg/kg/min:</span><span>${nr(.05).toFixed(1)} ml/hr</span></div>
+    <div class="mb-row"><span>${w} kg · 0.1 mcg/kg/min:</span><span>${nr(.1).toFixed(1)} ml/hr</span></div>
+    <div class="mb-row"><span>${w} kg · 0.3 mcg/kg/min:</span><span>${nr(.3).toFixed(1)} ml/hr</span></div>`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   QR CODE GENERATOR (Pure JS — Reed-Solomon + QR matrix)
+══════════════════════════════════════════════════════════════ */
+(function(){
+/* GF(256) */
+const EXP=[],LOG=[];
+let x=1;
+for(let i=0;i<255;i++){EXP[i]=x;LOG[x]=i;x<<=1;if(x&256)x^=0x11D}
+for(let i=255;i<512;i++)EXP[i]=EXP[i-255];
+const mul=(a,b)=>(!a||!b)?0:EXP[(LOG[a]+LOG[b])%255];
+const pmul=(p,q)=>{const r=new Array(p.length+q.length-1).fill(0);for(let i=0;i<p.length;i++)for(let j=0;j<q.length;j++)r[i+j]^=mul(p[i],q[j]);return r};
+const gen=n=>{let g=[1];for(let i=0;i<n;i++)g=pmul(g,[1,EXP[i]]);return g};
+const rsEnc=(data,n)=>{const g=gen(n),m=[...data,...new Array(n).fill(0)];for(let i=0;i<data.length;i++){const c=m[i];if(c)for(let j=0;j<g.length;j++)m[i+j]^=mul(g[j],c)}return m.slice(data.length)};
+
+/* Caps: [total,data,ec,blocks,size] */
+const CAPS={1:[26,19,7,1,21],2:[44,34,10,1,25],3:[70,55,15,1,29],4:[100,80,20,1,33],5:[134,108,26,1,37],6:[172,136,36,2,41],7:[196,156,40,2,45],8:[242,194,48,2,49],9:[292,232,60,2,53],10:[346,274,72,4,57]};
+const ALIGN={2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34],7:[6,22,38],8:[6,24,42],9:[6,26,46],10:[6,28,50]};
+const FMT={0:0b111011111000100,1:0b111001011110011,2:0b111110110100010,3:0b111100010010101,4:0b110011000101111,5:0b110001100011000,6:0b110110001001001,7:0b110100101111110};
+
+function qrBuild(text){
+  const raw=unescape(encodeURIComponent(text));
+  const bytes=[...raw].map(c=>c.charCodeAt(0));
+  let bits=[0,1,0,0];
+  const n=bytes.length;
+  for(let i=7;i>=0;i--)bits.push((n>>i)&1);
+  for(const b of bytes)for(let i=7;i>=0;i--)bits.push((b>>i)&1);
+  let v=1;
+  for(;v<=10;v++)if(CAPS[v][1]*8>=bits.length+4)break;
+  if(v>10)return null;
+  const [,dc,ec,,sz]=CAPS[v];
+  // pad
+  bits=[...bits,...new Array(Math.min(4,dc*8-bits.length)).fill(0)];
+  while(bits.length%8)bits.push(0);
+  const pads=[0b11101100,0b00010001];let pi=0;
+  while(bits.length<dc*8){for(let i=7;i>=0;i--)bits.push((pads[pi%2]>>i)&1);pi++}
+  bits=bits.slice(0,dc*8);
+  const b2b=b=>{const o=[];for(let i=0;i<b.length;i+=8)o.push(parseInt(b.slice(i,i+8).join(''),2));return o};
+  const data=b2b(bits);
+  const ecc=rsEnc(data,ec);
+  const cw=[...data,...ecc];
+
+  // Matrix
+  const G=Array.from({length:sz},()=>new Array(sz).fill(0));
+  const F=Array.from({length:sz},()=>new Array(sz).fill(false));
+  const S=(r,c,v,f=false)=>{if(r>=0&&r<sz&&c>=0&&c<sz){G[r][c]=v;if(f)F[r][c]=true}};
+
+  // Finder
+  const finder=(r,c)=>{for(let dr=-1;dr<8;dr++)for(let dc=-1;dc<8;dc++){const nr=r+dr,nc=c+dc;if(nr<0||nr>=sz||nc<0||nc>=sz)continue;const inn=dr>=0&&dr<=6&&dc>=0&&dc<=6;const brd=dr===-1||dr===7||dc===-1||dc===7;const rng=(dr===1||dr===5)&&dc>=1&&dc<=5||(dc===1||dc===5)&&dr>=1&&dr<=5;S(nr,nc,inn&&!rng&&!brd?1:0,true)}};
+  finder(0,0);finder(0,sz-7);finder(sz-7,0);
+  // Timing
+  for(let i=8;i<sz-8;i++){S(6,i,i%2^1,true);S(i,6,i%2^1,true)}
+  // Dark
+  S(4*v+9,8,1,true);
+  // Align
+  if(v>=2){const pos=ALIGN[v];for(const ar of pos)for(const ac of pos){if(F[ar][ac])continue;for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++)S(ar+dr,ac+dc,(Math.abs(dr)===2||Math.abs(dc)===2||(dr===0&&dc===0))?1:0,true)}}
+  // Format
+  const fi=FMT[0],fb=i=>(fi>>(14-i))&1;
+  for(let i=0;i<6;i++){S(8,i,fb(i),true);S(sz-1-i,8,fb(i),true)}
+  S(8,7,fb(6),true);S(sz-7,8,fb(6),true);S(8,8,fb(7),true);S(sz-8,8,fb(7),true);S(7,8,fb(8),true);S(8,sz-8,fb(7),true);
+  for(let i=0;i<6;i++){S(5-i,8,fb(9+i),true);S(8,sz-7+i,fb(9+i),true)}
+
+  // Data placement
+  const allBits=[];for(const cwd of cw)for(let i=7;i>=0;i--)allBits.push((cwd>>i)&1);
+  let idx=0,col=sz-1,row=sz-1,dir=-1;
+  while(col>=0){if(col===6)col--;for(let i=0;i<sz;i++){for(let dc=0;dc<2;dc++){const c=col-dc,r=row;if(!F[r][c]&&idx<allBits.length){G[r][c]=allBits[idx++]}}row+=dir}dir=-dir;row+=dir;col-=2}
+  // Mask 0
+  for(let r=0;r<sz;r++)for(let c=0;c<sz;c++)if(!F[r][c]&&(r+c)%2===0)G[r][c]^=1;
+  return {grid:G,size:sz,version:v};
+}
+
+window.generateQR=function(){
+  if(typeof trackQRGen === "function") trackQRGen();
+  const url=document.getElementById('qr-input').value.trim();
+  if(!url){alert('กรุณาใส่ URL ก่อน');return}
+  const qr=qrBuild(url);
+  if(!qr){alert('URL ยาวเกินไป (รองรับสูงสุด ~230 ตัวอักษร)');return}
+  const canvas=document.getElementById('qr-canvas');
+  const ctx=canvas.getContext('2d');
+  const quiet=4,mod=8,total=(qr.size+quiet*2)*mod;
+  canvas.width=total;canvas.height=total;
+  canvas.style.width=Math.min(total,290)+'px';
+  canvas.style.height=Math.min(total,290)+'px';
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,total,total);
+  ctx.fillStyle='#1a3a6b';
+  for(let r=0;r<qr.size;r++)for(let c=0;c<qr.size;c++)
+    if(qr.grid[r][c]===1)ctx.fillRect((c+quiet)*mod,(r+quiet)*mod,mod,mod);
+  document.getElementById('qr-result-card').style.display='block';
+  document.getElementById('qr-url-display').textContent=url;
+  document.getElementById('qr-dl-wrap').style.display='block';
+  document.getElementById('qr-result-card').scrollIntoView({behavior:'smooth',block:'center'});
+};
+
+window.downloadQR=function(){
+  const canvas=document.getElementById('qr-canvas');
+  const url=document.getElementById('qr-input').value.trim();
+  if(!canvas||canvas.width===0)return;
+  // Add white margin and URL text below QR
+  const tmp=document.createElement('canvas');
+  tmp.width=canvas.width+40;tmp.height=canvas.height+80;
+  const ctx=tmp.getContext('2d');
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,tmp.width,tmp.height);
+  ctx.drawImage(canvas,20,20);
+  ctx.fillStyle='#374151';ctx.font='bold 14px Arial';ctx.textAlign='center';
+  ctx.fillText('Drug Dose Card — ACLS 2025 · PALS 2025',tmp.width/2,canvas.height+44);
+  ctx.font='11px Arial';ctx.fillStyle='#6b7280';
+  ctx.fillText(url.length>50?url.slice(0,50)+'...':url,tmp.width/2,canvas.height+62);
+  const a=document.createElement('a');
+  a.href=tmp.toDataURL('image/png');
+  a.download='DrugDoseCard_QR.png';
+  a.click();
+};
+
+// Allow pressing Enter in QR input
+document.addEventListener('DOMContentLoaded',()=>{
+  const inp=document.getElementById('qr-input');
+  if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter')generateQR()});
+});
+
+})();/* end QR IIFE */
+
+
+const DRUG_LABELS = {
+  'adrenaline':'Adrenaline (Epinephrine)','adenosine':'Adenosine','amiodarone':'Amiodarone',
+  'atropine':'Atropine','lidocaine':'Lidocaine 2%','ca-gluconate':'Calcium Gluconate 10%',
+  'mgso4':'Magnesium Sulfate 50%','nahco3':'Sodium Bicarbonate 7.5%','glucose':'Glucose 50%',
+  'dopamine':'Dopamine','norepinephrine':'Norepinephrine','diazepam':'Diazepam'
+};
+
+/* ── DRUG FILTER (v3.3 — non-disruptive addition) ──────────────────────
+   Only toggles CSS display on existing .dc/.dg/.sec elements.
+   Does NOT touch updateAll(), dose IDs, or calculation logic in any way.
+   Default state ('all') = 100% identical to v3.2 behaviour.           */
+function filterDrug(val){
+  const allCards = document.querySelectorAll('#pg-drugs .dc');
+  const tagWrap  = document.getElementById('filter-tag-wrap');
+  const tagText  = document.getElementById('filter-tag-text');
+
+  if(val === 'all'){
+    allCards.forEach(c => c.style.display = '');
+    document.querySelectorAll('#pg-drugs .dg').forEach(g => g.style.display = '');
+    document.querySelectorAll('#pg-drugs .sec').forEach(s => s.style.display = '');
+    if(tagWrap) tagWrap.style.display = 'none';
+    if(typeof gtag === 'function') gtag('event','drug_filter_cleared',{app_version:'v3.3'});
+    return;
+  }
+
+  // Show only the matching card, hide the rest
+  allCards.forEach(c => {
+    c.style.display = (c.dataset.drug === val) ? '' : 'none';
+  });
+
+  // Hide any section/grid that has zero visible cards left
+  document.querySelectorAll('#pg-drugs .dg').forEach(grid => {
+    const hasVisible = Array.from(grid.querySelectorAll('.dc'))
+      .some(c => c.style.display !== 'none');
+    grid.style.display = hasVisible ? '' : 'none';
+    const sec = grid.previousElementSibling;
+    if(sec && sec.classList.contains('sec')){
+      sec.style.display = hasVisible ? '' : 'none';
+    }
+  });
+
+  // Show active filter tag
+  if(tagWrap && tagText){
+    tagText.textContent = 'กำลังแสดงเฉพาะ: ' + (DRUG_LABELS[val] || val);
+    tagWrap.style.display = 'block';
+  }
+
+  // Scroll the selected card into view smoothly
+  const target = document.querySelector('#pg-drugs .dc[data-drug="'+val+'"]');
+  if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+
+  // Optional analytics (only fires if GA already loaded — safe no-op otherwise)
+  if(typeof gtag === 'function'){
+    gtag('event','drug_filter_selected',{drug_name: val, app_version:'v3.3'});
+  }
+}
+
+/* ── INIT ─────────────────────────────────────────────────── */
+updateAll();
+</script>
+</body>
+</html>
